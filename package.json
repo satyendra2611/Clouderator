@@ -1,0 +1,27 @@
+{
+  "name": "clouderator",
+  "version": "1.0.0",
+  "description": "Clouderator - AI-Powered Cloud Infrastructure Operating System & Console",
+  "main": "server/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "ws": "^8.18.0"
+  },
+  "keywords": [
+    "cloud",
+    "ai",
+    "infrastructure",
+    "devops",
+    "terraform",
+    "monitoring",
+    "finops"
+  ],
+  "author": "Satyendra Kumar, Shivank, Shiv Narayan Yadav",
+  "license": "MIT"
+}

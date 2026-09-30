@@ -1,0 +1,21 @@
+{
+  "name": "Satyendra Kumar",
+  "username": "satyendra",
+  "email": "satyendra@clouderator.dev",
+  "role": "Cloud Architect & Lead DevOps",
+  "org": "Clouderator Systems",
+  "avatarInitial": "S",
+  "avatarColor": "blue",
+  "bio": "Designing high-scale, resilient cloud infrastructure on AWS & GCP.",
+  "cloudProvider": "aws",
+  "defaultRegion": "us-east-1",
+  "iacFormat": "terraform",
+  "highAvailability": true,
+  "zeroEgress": true,
+  "serverAlerts": true,
+  "moneyAlerts": true,
+  "doctorAlerts": true,
+  "soundAlerts": false,
+  "mfaEnabled": true,
+  "patToken": "pat_clouderator_live_83921b79401e8a"
+}

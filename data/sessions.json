@@ -1,0 +1,255 @@
+[
+  {
+    "id": "session-1790786974484",
+    "title": "Food Delivery App",
+    "createdAt": "2026-09-30T16:49:34.484Z",
+    "updatedAt": "2026-09-30T17:05:11.363Z",
+    "messages": [
+      {
+        "id": "msg-1",
+        "sender": "user",
+        "timestamp": "10:15 AM",
+        "text": "I want to build a food delivery application for 50,000 daily users."
+      },
+      {
+        "id": "msg-2",
+        "sender": "ai",
+        "timestamp": "10:15 AM",
+        "text": "Great! I've analyzed your requirements and here is the initial architecture I recommend.",
+        "bulletPoints": [
+          "High availability web application",
+          "Scalable backend services",
+          "PostgreSQL for relational data",
+          "Redis for caching & sessions",
+          "S3 for media storage",
+          "CDN for static content"
+        ],
+        "actionButton": {
+          "text": "View Architecture →",
+          "action": "highlight_canvas"
+        }
+      },
+      {
+        "id": "msg-3",
+        "sender": "user",
+        "timestamp": "10:17 AM",
+        "text": "Add real-time order tracking."
+      },
+      {
+        "id": "msg-4",
+        "sender": "ai",
+        "timestamp": "10:17 AM",
+        "text": "Added WebSocket service using AWS API Gateway (WebSocket) and improved architecture.",
+        "actionButton": {
+          "text": "View Changes",
+          "action": "highlight_websocket"
+        }
+      },
+      {
+        "id": "msg-5",
+        "sender": "user",
+        "timestamp": "10:18 AM",
+        "text": "Reduce cost by 20%"
+      },
+      {
+        "id": "msg-6",
+        "sender": "ai",
+        "timestamp": "10:18 AM",
+        "text": "Optimized instance configurations, enabled S3 Intelligent-Tiering, and switched ECS to ARM64 Graviton instances. Monthly spend reduced by 22% from previous baseline ($2,340/mo down to $1,825/mo on 1-Yr Savings Plan).",
+        "bulletPoints": [
+          "Switched ECS tasks to AWS Graviton (saving ~20%)",
+          "Configured off-peak autoscaling schedule for Read Replica",
+          "Reduced over-provisioned memory buffers on ElastiCache",
+          "Applied 1-Year Compute Savings Plan tier"
+        ]
+      }
+    ],
+    "architecture": {
+      "projectName": "Food Delivery App",
+      "cloudProvider": "aws",
+      "userScale": 50000,
+      "costReductionPct": 22,
+      "metrics": {
+        "monthlyCost": 608.79,
+        "costPercentDiff": -22,
+        "performanceScore": 87,
+        "performanceStatus": "Good",
+        "availabilityScore": 99.95,
+        "availabilityStatus": "Multi-AZ Architecture",
+        "securityScore": 92,
+        "securityStatus": "Great"
+      },
+      "nodes": [
+        {
+          "id": "dns",
+          "name": "DNS / Route53",
+          "category": "networking",
+          "categoryColor": "#8b5cf6",
+          "x": 363,
+          "y": 35,
+          "specs": "Latency-based routing + Health Checks",
+          "sla": "100% SLA",
+          "monthlyCost": 18
+        },
+        {
+          "id": "cdn",
+          "name": "CDN (CloudFront)",
+          "category": "networking",
+          "categoryColor": "#8b5cf6",
+          "x": 363,
+          "y": 125,
+          "specs": "Global Edge Caching, TLS 1.3, DDoS Shield",
+          "sla": "99.9% SLA",
+          "monthlyCost": 95
+        },
+        {
+          "id": "alb",
+          "name": "Load Balancer (Application LB)",
+          "category": "compute",
+          "categoryColor": "#f97316",
+          "x": 363,
+          "y": 215,
+          "specs": "Path-based routing, Cross-Zone Balancing",
+          "sla": "99.99% SLA",
+          "monthlyCost": 45
+        },
+        {
+          "id": "websocket",
+          "name": "WebSocket API Gateway",
+          "category": "messaging",
+          "categoryColor": "#eab308",
+          "x": 80,
+          "y": 320,
+          "specs": "Persistent two-way connection for live order tracking",
+          "sla": "99.95% SLA",
+          "monthlyCost": 35
+        },
+        {
+          "id": "asg",
+          "name": "Auto Scaling Group",
+          "category": "compute",
+          "categoryColor": "#f97316",
+          "x": 290,
+          "y": 320,
+          "isGroup": true,
+          "instanceCount": 3,
+          "specs": "Min: 2, Desired: 3, Max: 8 (Target CPU: 70%)",
+          "children": [
+            {
+              "id": "app1",
+              "name": "App Server (ECS / Fargate)",
+              "cpu": "2 vCPU",
+              "ram": "4 GB"
+            },
+            {
+              "id": "app2",
+              "name": "App Server (ECS / Fargate)",
+              "cpu": "2 vCPU",
+              "ram": "4 GB"
+            },
+            {
+              "id": "app3",
+              "name": "App Server (ECS / Fargate)",
+              "cpu": "2 vCPU",
+              "ram": "4 GB"
+            }
+          ],
+          "monthlyCost": 432
+        },
+        {
+          "id": "redis",
+          "name": "Redis (ElastiCache)",
+          "category": "caching",
+          "categoryColor": "#ef4444",
+          "x": 645,
+          "y": 320,
+          "specs": "cache.t4g.medium, Session store & live menu cache",
+          "sla": "99.9% SLA",
+          "monthlyCost": 65
+        },
+        {
+          "id": "rds_replica",
+          "name": "Read Replica (RDS)",
+          "category": "database",
+          "categoryColor": "#10b981",
+          "x": 145,
+          "y": 485,
+          "specs": "db.r6g.large PostgreSQL (Read-heavy queries)",
+          "sla": "99.95% SLA",
+          "monthlyCost": 140
+        },
+        {
+          "id": "rds_primary",
+          "name": "PostgreSQL (RDS Multi-AZ)",
+          "category": "database",
+          "categoryColor": "#10b981",
+          "x": 363,
+          "y": 485,
+          "isMultiAz": true,
+          "specs": "db.r6g.large Multi-AZ Synchronous Replication",
+          "sla": "99.95% SLA",
+          "monthlyCost": 320
+        },
+        {
+          "id": "s3",
+          "name": "S3 (Media Storage)",
+          "category": "storage",
+          "categoryColor": "#3b82f6",
+          "x": 580,
+          "y": 485,
+          "specs": "Restaurant menus, order receipts, food photos",
+          "sla": "99.999999999% Durability",
+          "monthlyCost": 45
+        }
+      ],
+      "edges": [
+        {
+          "from": "dns",
+          "to": "cdn",
+          "label": "Resolves to"
+        },
+        {
+          "from": "cdn",
+          "to": "alb",
+          "label": "Dynamic Requests"
+        },
+        {
+          "from": "alb",
+          "to": "asg",
+          "label": "Balances Traffic"
+        },
+        {
+          "from": "websocket",
+          "to": "asg",
+          "label": "Live Events"
+        },
+        {
+          "from": "asg",
+          "to": "redis",
+          "label": "Cache Reads/Writes"
+        },
+        {
+          "from": "asg",
+          "to": "rds_primary",
+          "label": "Transactional Writes"
+        },
+        {
+          "from": "asg",
+          "to": "rds_replica",
+          "label": "Reporting & Feeds"
+        },
+        {
+          "from": "asg",
+          "to": "s3",
+          "label": "Media Assets"
+        },
+        {
+          "from": "rds_replica",
+          "to": "rds_primary",
+          "label": "Async Replication",
+          "dashed": true
+        }
+      ]
+    }
+  }
+]
