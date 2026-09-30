@@ -1344,6 +1344,7 @@ body:not(.dark-theme) .chat-msg.user .msg-body {
   gap: 8px;
   color: var(--text-secondary);
   font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .msg-bullets li::before {
@@ -1351,6 +1352,349 @@ body:not(.dark-theme) .chat-msg.user .msg-body {
   color: var(--accent-emerald);
   font-weight: bold;
 }
+
+/* ============================================================
+   AI MESSAGE STRUCTURED FORMATTING (Paragraphs, Headings, Points)
+   ============================================================ */
+.msg-paragraph {
+  margin: 0 0 10px 0;
+  line-height: 1.65;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+}
+
+.msg-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.msg-section-heading {
+  margin: 16px 0 10px 0;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 8px;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.12), transparent);
+  border-left: 3px solid var(--accent-primary, #3b82f6);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.msg-section-heading.heading-l2 {
+  font-size: 0.92rem;
+  border-left-color: #a855f7;
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.14), transparent);
+}
+
+.msg-section-heading.heading-l3 {
+  font-size: 0.86rem;
+}
+
+.msg-section-heading.heading-l4 {
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-left-color: #10b981;
+}
+
+.msg-heading-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.msg-styled-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.msg-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.81rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background-color 0.15s ease;
+}
+
+.msg-list-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.msg-list-item.is-service {
+  background: rgba(59, 130, 246, 0.07);
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  margin-top: 6px;
+  font-weight: 600;
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 7px 11px;
+}
+
+.msg-list-item.is-subitem {
+  margin-left: 14px;
+  background: rgba(0, 0, 0, 0.12);
+  border-left: 2px solid var(--accent-primary, #3b82f6);
+  border-radius: 0 6px 6px 0;
+  padding: 5px 10px;
+  font-size: 0.79rem;
+}
+
+.item-bullet {
+  width: 5px;
+  height: 5px;
+  min-width: 5px;
+  border-radius: 50%;
+  background: var(--accent-primary, #3b82f6);
+  margin-top: 7px;
+  display: inline-block;
+}
+
+.msg-list-item.is-subitem .item-bullet {
+  background: var(--text-muted);
+  width: 4px;
+  height: 4px;
+  min-width: 4px;
+}
+
+.item-content {
+  flex: 1;
+  word-break: break-word;
+}
+
+/* Specialized Badges in explanations */
+.point-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.67rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.point-badge.badge-decision {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.point-badge.badge-tradeoff {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.point-badge.badge-cost {
+  background: rgba(16, 185, 129, 0.14);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.point-badge.badge-security {
+  background: rgba(168, 85, 247, 0.16);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+.point-badge.badge-availability {
+  background: rgba(6, 182, 212, 0.16);
+  color: #22d3ee;
+  border: 1px solid rgba(6, 182, 212, 0.35);
+}
+
+.point-badge.badge-performance {
+  background: rgba(99, 102, 241, 0.16);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.point-badge.badge-pros {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.point-badge.badge-cons {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.point-badge.badge-note {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+/* Cost highlight pills */
+.msg-cost-tag {
+  display: inline-block;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 10px;
+  padding: 1px 7px;
+  margin: 0 3px;
+  vertical-align: middle;
+}
+
+/* Inline Code and Code Blocks */
+.msg-code {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.77rem;
+  background: rgba(0, 0, 0, 0.28);
+  color: #38bdf8;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.msg-code-block {
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.msg-code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #161b22;
+  padding: 5px 12px;
+  font-size: 0.72rem;
+  color: #8b949e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.msg-code-copy {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #c9d1d9;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.msg-code-copy:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.msg-code-block pre {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+}
+
+.msg-code-block code {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #e6edf3;
+}
+
+/* Light Theme overrides for structured AI messages */
+body:not(.dark-theme) .msg-section-heading {
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent);
+  color: #0f172a;
+}
+
+body:not(.dark-theme) .msg-list-item {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+body:not(.dark-theme) .msg-list-item.is-service {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e3a8a;
+}
+
+body:not(.dark-theme) .msg-list-item.is-subitem {
+  background: #f1f5f9;
+  border-left-color: #2563eb;
+  color: #1e293b;
+}
+
+body:not(.dark-theme) .point-badge.badge-decision {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+}
+
+body:not(.dark-theme) .point-badge.badge-tradeoff {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fcd34d;
+}
+
+body:not(.dark-theme) .point-badge.badge-cost {
+  background: #d1fae5;
+  color: #047857;
+  border-color: #6ee7b7;
+}
+
+body:not(.dark-theme) .point-badge.badge-security {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border-color: #d8b4fe;
+}
+
+body:not(.dark-theme) .point-badge.badge-availability {
+  background: #cffafe;
+  color: #0e7490;
+  border-color: #67e8f9;
+}
+
+body:not(.dark-theme) .point-badge.badge-performance {
+  background: #e0e7ff;
+  color: #4338ca;
+  border-color: #a5b4fc;
+}
+
+body:not(.dark-theme) .point-badge.badge-pros {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+}
+
+body:not(.dark-theme) .point-badge.badge-cons {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+body:not(.dark-theme) .msg-cost-tag {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+body:not(.dark-theme) .msg-code {
+  background: #e2e8f0;
+  color: #0369a1;
+  border-color: #cbd5e1;
+}
+
 
 .msg-action-btn {
   margin-top: 10px;

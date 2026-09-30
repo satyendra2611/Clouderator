@@ -1519,6 +1519,19 @@ ARCHITECTURE & CANVAS MODIFICATION GUIDELINES:
    - In "text", explain the exact architectural changes and cost savings clearly in Hindi/English.
    - List key cost reductions in "bullets".
 
+8. EXPLANATION, ARCHITECTURE BREAKDOWNS & TRADE-OFFS (e.g. 'Explain the architecture decisions, trade-offs, and service choices in detail', 'explain karo', 'architecture samjhao', 'details batao'):
+   - STRUCTURE IS CRITICAL: Never return an unformatted dense wall of text. Always break explanations cleanly into structured paragraphs and bullet points.
+   - For detailed breakdowns:
+     1. Start with a 1-2 sentence overview paragraph.
+     2. Group services logically using markdown section headings (e.g. "### 1. Network & Edge Layer", "### 2. Compute & Microservices", "### 3. Database & Caching Layer", "### 4. Storage & Security").
+     3. For each service, use a bold bullet for the service name and cost:
+        * **Service Name ($Cost/mo):**
+          * **Decision:** Purpose and reason for choosing this service.
+          * **Trade-off:** Trade-off considered (cost savings vs performance/redundancy).
+     4. Conclude with a brief paragraph or bullets on high availability, security, and cost efficiency.
+   - In "text": Provide the full structured breakdown with clean line breaks and markdown sections.
+   - In "bullets": Provide 3-5 high-level key executive takeaway bullets.
+
 Schema (Strict JSON):
 {
   "text": "Answer directly to what was asked",
@@ -1534,7 +1547,7 @@ Schema (Strict JSON):
     ];
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000);
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
 
     try {
       const response = await fetch(url, {
@@ -1547,7 +1560,7 @@ Schema (Strict JSON):
           model: selectedModel,
           messages,
           temperature: 0.2,
-          max_tokens: 800
+          max_tokens: 2500
         }),
         signal: controller.signal
       });
@@ -1660,12 +1673,12 @@ Schema (Strict JSON):
 A developer says: "${userPrompt}".
 Current Architecture: ${JSON.stringify(this.currentArchitecture.nodes.map(n => ({ id: n.id, name: n.name, category: n.category })))}
 
-Respond with a concise, professional assessment. Provide:
-1. A summary paragraph (1-2 sentences).
-2. 3-4 bullet points detailing specific architectural changes, cost implications, and operational advice.
+Respond with a well-structured, professional assessment. Never output dense unseparated walls of text. Provide:
+1. A clean summary paragraph (1-2 sentences) introducing the design philosophy.
+2. 3-5 clear, distinct bullet points detailing specific architectural choices, cost implications, and trade-offs.
 Format your output strictly as valid JSON:
 {
-  "text": "Your summary response here",
+  "text": "Your clean summary paragraph here",
   "bullets": ["Point 1", "Point 2", "Point 3"]
 }`
         }]

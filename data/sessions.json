@@ -1,5 +1,249 @@
 [
   {
+    "id": "session-1790800388050",
+    "title": "New Cloud Architecture",
+    "createdAt": "2026-09-30T20:33:08.050Z",
+    "updatedAt": "2026-09-30T20:33:08.050Z",
+    "messages": [
+      {
+        "id": "msg-welcome",
+        "sender": "ai",
+        "timestamp": "02:03 AM",
+        "text": "Hello! I'm Clouderator AI. What cloud architecture or system design would you like to build today?",
+        "bulletPoints": [],
+        "provider": "groq"
+      }
+    ],
+    "architecture": {
+      "projectName": "New Cloud Architecture",
+      "cloudProvider": "aws",
+      "userScale": 10000,
+      "costReductionPct": 0,
+      "metrics": {
+        "monthlyCost": 0,
+        "costPercentDiff": 0,
+        "performanceScore": 100,
+        "performanceStatus": "Ready",
+        "availabilityScore": 99.99,
+        "availabilityStatus": "Multi-AZ Ready",
+        "securityScore": 95,
+        "securityStatus": "Zero-Trust Ready"
+      },
+      "nodes": [],
+      "edges": []
+    }
+  },
+  {
+    "id": "session-1790795538581",
+    "title": "Fintech Payment Gateway (Cost-Optimized)",
+    "createdAt": "2026-09-30T19:12:18.581Z",
+    "updatedAt": "2026-09-30T20:34:16.354Z",
+    "messages": [
+      {
+        "id": "msg-fin-1",
+        "sender": "user",
+        "timestamp": "09:30 AM",
+        "text": "Load PCI-DSS Tier 1 Fintech Payment architecture with mutual TLS and immutable audit vault."
+      },
+      {
+        "id": "msg-fin-2",
+        "sender": "ai",
+        "timestamp": "09:30 AM",
+        "text": "Provisioned Fintech Core architecture: 99/100 Security Score, mTLS internal ingress, encrypted ledger, and S3 WORM audit compliance.",
+        "bulletPoints": [
+          "FIPS 140-2 Level 3 HSM hardware encryption",
+          "Private isolated VPC with zero public IPs on app pods",
+          "Object-locked audit trail"
+        ]
+      },
+      {
+        "id": "msg-1790795671139",
+        "sender": "user",
+        "timestamp": "12:44 AM",
+        "text": "reduce the cost"
+      },
+      {
+        "id": "msg-1790795672981",
+        "sender": "ai",
+        "timestamp": "12:44 AM",
+        "text": "Cost optimization applied: Replaced Multi-AZ RDS with Single-AZ (with automated backups), downgraded CloudFront to Standard tier, and switched to burstable compute instances. Total monthly cost reduced from $4,200 to $1,680 (57% savings) while maintaining PCI-DSS compliance via encryption and audit logs.",
+        "bulletPoints": [
+          "RDS: Multi-AZ to Single-AZ (Saves ~$425/mo)",
+          "CloudFront: Shield Advanced to Standard (Saves ~$180/mo)",
+          "Compute: Burstable t3.small instances (Saves ~$300/mo)",
+          "Total Savings: $2,520/mo (60% reduction)"
+        ],
+        "actionButton": {
+          "text": "View Applied Changes",
+          "action": "highlight_canvas"
+        },
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b"
+      },
+      {
+        "id": "msg-1790797443062",
+        "sender": "user",
+        "timestamp": "01:14 AM",
+        "text": "Explain the architecture decisions, trade-offs, and service choices in detail."
+      },
+      {
+        "id": "msg-1790797444887",
+        "sender": "ai",
+        "timestamp": "01:14 AM",
+        "text": "Here is the detailed breakdown of the cost-optimized Fintech Payment Gateway architecture, focusing on the specific service choices, architectural decisions, and the trade-offs involved in balancing security, performance, and cost.\n\n### 1. Network & Edge Layer\n*   **Route53 Standard DNS ($10/mo):**\n    *   **Decision:** Used for global routing.\n    *   **Trade-off:** Standard DNS is sufficient for a single-region or multi-AZ setup. We avoided Route53 *Health Checks* (which cost extra) by relying on ALB health checks instead, saving ~$5-10/mo.\n*   **CloudFront Standard ($40/mo):**\n    *   **Decision:** Edge caching for static assets and basic WAF integration.\n    *   **Trade-off:** We selected \"Standard\" rather than \"Plus\" or \"Enterprise.\" For a payment gateway, the critical data (API calls) is not cached; only static UI assets are. This keeps egress costs low. Basic WAF rules are included; if advanced bot mitigation is needed, AWS WAF Advanced Rules would add ~$40/mo, which was deferred to keep costs down.\n\n### 2. Compute & Ingress\n*   **Internal Application Gateway (ALB) ($40/mo):**\n    *   **Decision:** mTLS (Mutual TLS) enabled at the ALB level.\n    *   **Trade-off:** ALB is more expensive than NLB but necessary for HTTP/2, WebSocket, and path-based routing. mTLS ensures that only authorized microservices can communicate with the backend, a strict PCI-DSS requirement.\n*   **Auto Scaling Group (Burstable t3.small) ($450/mo):**\n    *   **Decision:** Using `t3.small` burstable instances in private subnets.\n    *   **Trade-off:**\n        *   **Cost:** Burstable instances are significantly cheaper than general-purpose (`m5`) or compute-optimized (`c5`) instances.\n        *   **Performance:** These instances have a baseline CPU performance. If the payment gateway experiences sustained high load (e.g., Black Friday), they will hit the CPU credit limit and throttle.\n        *   **Mitigation:** We rely on Auto Scaling to add more instances during peak times rather than using larger, more expensive instances. This is a \"pay-as-you-grow\" strategy.\n\n### 3. Data Layer\n*   **Encrypted Single-AZ Ledger DB (RDS PostgreSQL db.t3.medium) ($425/mo):**\n    *   **Decision:** Single-AZ deployment with KMS CMK encryption and automated backups.\n    *   **Trade-off:**\n        *   **Availability:** Single-AZ means if that Availability Zone fails, the database is down until failover or restore. This is a **major risk** for a payment gateway.\n        *   **Cost Savings:** Multi-AZ RDS costs 2x the Single-AZ price. By choosing Single-AZ, we saved ~$425/mo.\n        *   **Compliance:** PCI-DSS requires data encryption at rest (handled by KMS) and audit trails. It does *not* strictly mandate Multi-AZ for the database if you have a robust DR (Disaster Recovery) plan (e.g., cross-region snapshots).\n        *   **Risk Mitigation:** We rely on automated backups (every 5 mins) and cross-region snapshot replication (if enabled) to ensure RPO (Recovery Point Objective) is low.\n\n### 4. Storage & Compliance\n*   **Immutable Audit Vault (S3 Object Lock) ($55/mo):**\n    *   **Decision:** S3 Standard-IA with Object Lock (WORM - Write Once Read Many",
+        "bulletPoints": [],
+        "actionButton": null,
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b"
+      },
+      {
+        "id": "msg-1790800452812",
+        "sender": "user",
+        "timestamp": "02:04 AM",
+        "text": "Explain the architecture decisions, trade-offs, and service choices in detail."
+      },
+      {
+        "id": "msg-1790800456354",
+        "sender": "ai",
+        "timestamp": "02:04 AM",
+        "text": "Yeh architecture ek cost-optimized Fintech Payment Gateway ke liye design kiya gaya hai, jahan primary focus hai PCI-DSS compliance aur security maintain karte hue infrastructure costs ko minimize karna. Humne high-availability (Multi-AZ) ki jagah Single-AZ database aur burstable compute instances use kiye hain taaki monthly spend ko $513 par control kiya ja sake, bina ki security ya core performance par compromise kiya ho.\n\n### 1. Network & Edge Layer\n*   **Route53 Standard DNS ($10/mo):**\n    *   **Decision:** Global DNS routing ke liye standard tier use kiya gaya hai.\n    *   **Trade-off:** Health checks (jo extra cost karte hain) ki jagah hum ALB ke built-in health checks par rely kar rahe hain, jo ki cost-effective hai.\n*   **CloudFront Standard ($40/mo):**\n    *   **Decision:** Edge caching aur basic WAF protection ke liye.\n    *   **Trade-off:** Advanced WAF rules (jo $40+ extra lagte hain) ko avoid kiya gaya hai kyunki basic DDoS protection aur static asset caching ke liye Standard tier sufficient hai. Isse egress costs bhi kam hote hain.\n\n### 2. Compute & Ingress\n*   **Internal Application Gateway (ALB) ($40/mo):**\n    *   **Decision:** mTLS (Mutual TLS) enabled ALB use kiya gaya hai.\n    *   **Trade-off:** ALB, NLB ke muqable mehnga hai, lekin payment gateway ke liye HTTP/2, WebSocket support, aur path-based routing zaroori hai. mTLS ensure karta hai ki sirf authorized services hi backend se connect kar sakti hain, jo PCI-DSS ke liye critical hai.\n*   **Auto Scaling Group (Burstable t3.small) ($450/mo):**\n    *   **Decision:** Private subnets mein burstable `t3.small` instances use kiye gaye hain.\n    *   **Trade-off:** General purpose instances (jaise m5) ke muqable yeh significantly saste hain. Trade-off yeh hai ki sustained high load par CPU credits khatam ho sakte hain. Isko mitigate karne ke liye Auto Scaling use kiya gaya hai taaki peak traffic par instances scale up ho jayein, bina ki base cost badhi.\n\n### 3. Database & Caching Layer\n*   **Encrypted Single-AZ Ledger DB (RDS PostgreSQL) ($425/mo):**\n    *   **Decision:** Single-AZ deployment with KMS CMK encryption aur automated backups.\n    *   **Trade-off:** Multi-AZ RDS ka cost 2x hota hai. Single-AZ choose karne se ~$425/mo ki saving hui hai. Risk yeh hai ki agar AZ fail hota hai toh DB down rahegi. Isko mitigate karne ke liye hum automated backups aur cross-region snapshots (DR strategy) par rely kar rahe hain, jo ki PCI-DSS ke liye acceptable hai agar RPO (Recovery Point Objective) low ho.\n\n### 4. Storage & Security\n*   **Immutable Audit Vault (S3 Object Lock) ($55/mo):**\n    *   **Decision:** S3 Standard-IA with Object Lock (WORM compliance).\n    *   **Trade-off:** Standard storage ke muqable Standard-IA sasta hai kyunki audit logs rarely access hote hain. Object Lock ensure karta hai ki logs tamper-proof hain, jo regulatory compliance ke liye mandatory hai. Retrieval costs thode zyada hain, lekin storage savings isse zyada hain.",
+        "bulletPoints": [
+          "Cost Optimization: Single-AZ RDS aur Burstable EC2 instances se total monthly cost $513 tak reduce kiya gaya hai.",
+          "Security First: mTLS on ALB aur KMS encryption on RDS ensure karte hain ki data in-transit aur at-rest dono secure hai (PCI-DSS compliant).",
+          "Availability Trade-off: Single-AZ database availability risk badhata hai, lekin automated backups aur DR strategy is risk ko manageable banati hain.",
+          "Scalability: Auto Scaling Group burstable instances ko peak load handle karne deta hai bina ki base infrastructure cost badhi.",
+          "Compliance: S3 Object Lock (WORM) audit logs ko immutable banata hai, jo fintech regulations ke liye critical hai."
+        ],
+        "actionButton": null,
+        "provider": "groq",
+        "model": "qwen/qwen3.8-27b"
+      }
+    ],
+    "architecture": {
+      "projectName": "Fintech Payment Gateway (Cost-Optimized)",
+      "cloudProvider": "aws",
+      "userScale": 100000,
+      "costReductionPct": 25,
+      "metrics": {
+        "monthlyCost": 513,
+        "costPercentDiff": -25,
+        "performanceScore": 92,
+        "performanceStatus": "High Performance",
+        "availabilityScore": 99.99,
+        "availabilityStatus": "Multi-AZ Active-Active",
+        "securityScore": 95,
+        "securityStatus": "Enterprise Secure"
+      },
+      "nodes": [
+        {
+          "id": "dns",
+          "name": "Route53 Standard DNS",
+          "category": "networking",
+          "categoryColor": "#8b5cf6",
+          "specs": "Global DNS routing",
+          "sla": "99.9% SLA",
+          "monthlyCost": 10,
+          "isGroup": false,
+          "x": 480,
+          "y": 80
+        },
+        {
+          "id": "cdn",
+          "name": "CloudFront Standard",
+          "category": "networking",
+          "categoryColor": "#8b5cf6",
+          "specs": "Edge caching + Basic WAF",
+          "sla": "99.9% SLA",
+          "monthlyCost": 40,
+          "isGroup": false,
+          "x": 480,
+          "y": 175
+        },
+        {
+          "id": "alb",
+          "name": "Internal Application Gateway",
+          "category": "compute",
+          "categoryColor": "#f97316",
+          "specs": "Mutual TLS (mTLS) Enabled",
+          "sla": "99.9% SLA",
+          "monthlyCost": 40,
+          "isGroup": false,
+          "x": 480,
+          "y": 270
+        },
+        {
+          "id": "asg",
+          "name": "Auto Scaling Group (Burstable)",
+          "category": "compute",
+          "categoryColor": "#f97316",
+          "specs": "t3.small instances, Private Subnets",
+          "sla": "99.9% SLA",
+          "monthlyCost": 450,
+          "isGroup": false,
+          "x": 410,
+          "y": 380
+        },
+        {
+          "id": "rds_primary",
+          "name": "Encrypted Single-AZ Ledger DB",
+          "category": "database",
+          "categoryColor": "#10b981",
+          "specs": "PostgreSQL db.t3.medium, KMS CMK, Automated Backups",
+          "sla": "99.9% SLA",
+          "monthlyCost": 425,
+          "isGroup": false,
+          "x": 480,
+          "y": 575
+        },
+        {
+          "id": "s3",
+          "name": "Immutable Audit Vault",
+          "category": "storage",
+          "categoryColor": "#3b82f6",
+          "specs": "S3 Object Lock (WORM compliance), Standard-IA",
+          "sla": "99.9% SLA",
+          "monthlyCost": 55,
+          "isGroup": false,
+          "x": 700,
+          "y": 575
+        }
+      ],
+      "edges": [
+        {
+          "from": "dns",
+          "to": "cdn",
+          "label": "Connects"
+        },
+        {
+          "from": "cdn",
+          "to": "alb",
+          "label": "Connects"
+        },
+        {
+          "from": "alb",
+          "to": "asg",
+          "label": "Connects"
+        },
+        {
+          "from": "asg",
+          "to": "rds_primary",
+          "label": "Connects"
+        },
+        {
+          "from": "asg",
+          "to": "s3",
+          "label": "Connects"
+        },
+        {
+          "from": "cdn",
+          "to": "s3",
+          "label": "Static Cache Origin",
+          "dashed": false
+        }
+      ]
+    }
+  },
+  {
     "id": "session-1790786974484",
     "title": "Food Delivery App",
     "createdAt": "2026-09-30T16:49:34.484Z",

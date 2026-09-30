@@ -484,6 +484,176 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   // CHAT & CONVERSATIONAL ASSISTANT
   // ==========================================
+  function escapeHtml(str) {
+    if (!str || typeof str !== 'string') return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function formatAiInline(str) {
+    if (!str) return '';
+    let s = escapeHtml(str);
+
+    // Inline code: `code`
+    s = s.replace(/`([^`]+)`/g, '<code class="msg-code">$1</code>');
+
+    // Specialized Badges: **Decision:**, **Trade-off:**, etc. (handles colons inside or outside asterisks)
+    s = s.replace(/\*\*Decision:?\*\*:?/gi, '<span class="point-badge badge-decision">Decision</span>');
+    s = s.replace(/\*\*Trade-offs?:?\*\*:?/gi, '<span class="point-badge badge-tradeoff">Trade-off</span>');
+    s = s.replace(/\*\*Reason:?\*\*:?/gi, '<span class="point-badge badge-decision">Reason</span>');
+    s = s.replace(/\*\*Why:?\*\*:?/gi, '<span class="point-badge badge-decision">Why</span>');
+    s = s.replace(/\*\*Availability:?\*\*:?/gi, '<span class="point-badge badge-availability">Availability</span>');
+    s = s.replace(/\*\*Cost Savings?:?\*\*:?/gi, '<span class="point-badge badge-cost">Cost Savings</span>');
+    s = s.replace(/\*\*Cost:?\*\*:?/gi, '<span class="point-badge badge-cost">Cost</span>');
+    s = s.replace(/\*\*Compliance:?\*\*:?/gi, '<span class="point-badge badge-security">Compliance</span>');
+    s = s.replace(/\*\*Security:?\*\*:?/gi, '<span class="point-badge badge-security">Security</span>');
+    s = s.replace(/\*\*Risk Mitigation:?\*\*:?/gi, '<span class="point-badge badge-pros">Risk Mitigation</span>');
+    s = s.replace(/\*\*Mitigation:?\*\*:?/gi, '<span class="point-badge badge-pros">Mitigation</span>');
+    s = s.replace(/\*\*Performance:?\*\*:?/gi, '<span class="point-badge badge-performance">Performance</span>');
+    s = s.replace(/\*\*Pros:?\*\*:?/gi, '<span class="point-badge badge-pros">Pros</span>');
+    s = s.replace(/\*\*Cons:?\*\*:?/gi, '<span class="point-badge badge-cons">Cons</span>');
+    s = s.replace(/\*\*Note:?\*\*:?/gi, '<span class="point-badge badge-note">Note</span>');
+
+    // Bold: **text**
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong class="msg-bold">$1</strong>');
+
+    // Italic: *text* or _text_
+    s = s.replace(/(^|[^*])\*([^*]+)\*([^*]|$)/g, '$1<em>$2</em>$3');
+
+    // Cost highlight: ($10/mo), ~$5-10/mo, $40/mo, $513/month
+    s = s.replace(/(\(?~?\$[\d,]+(?:\.\d+)?(?:\s*-\s*\$?[\d,]+)?(?:\/(?:mo|month|hr|year))?\)?)/gi, (match) => {
+      if (/\$\d+/.test(match)) {
+        return `<span class="msg-cost-tag">${match}</span>`;
+      }
+      return match;
+    });
+
+    return s;
+  }
+
+  function formatAiMessage(raw) {
+    if (!raw || typeof raw !== 'string') return '';
+
+    let text = raw.trim();
+
+    // Normalize line endings
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+    // Extract code blocks first
+    const codeBlocks = [];
+    text = text.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+      const idx = codeBlocks.length;
+      const escapedCode = escapeHtml(code);
+      codeBlocks.push(`
+        <div class="msg-code-block">
+          <div class="msg-code-header">
+            <span class="msg-code-lang">${lang || 'Code'}</span>
+            <button class="msg-code-copy" onclick="navigator.clipboard.writeText(this.closest('.msg-code-block').querySelector('code').innerText);this.innerText='Copied!';setTimeout(()=>this.innerText='Copy',1500)">Copy</button>
+          </div>
+          <pre><code>${escapedCode}</code></pre>
+        </div>
+      `);
+      return `\n\n__CODE_BLOCK_${idx}__\n\n`;
+    });
+
+    // Normalize mashed text: ensure headings like "### 1. Network..." are on their own lines
+    text = text.replace(/(^|[^\n])\s*(#{1,4}\s+[^\n*]+?)(?=\s*(?:\*\s|\n|$))/g, '$1\n\n$2\n\n');
+
+    // Ensure list items mashed together with preceding text are separated
+    text = text.replace(/([^\n])\s*(\*\s+\*\*)/g, '$1\n* **');
+
+    // Clean up excessive newlines
+    text = text.replace(/\n{3,}/g, '\n\n');
+
+    const lines = text.split('\n');
+    const htmlParts = [];
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const trimmedLine = line.trim();
+
+      if (!trimmedLine) {
+        if (inList) {
+          htmlParts.push('</ul>');
+          inList = false;
+        }
+        continue;
+      }
+
+      // Check code block placeholder
+      if (trimmedLine.startsWith('__CODE_BLOCK_') && trimmedLine.endsWith('__')) {
+        if (inList) {
+          htmlParts.push('</ul>');
+          inList = false;
+        }
+        const blockIdx = parseInt(trimmedLine.replace(/__CODE_BLOCK_(\d+)__/, '$1'), 10);
+        if (codeBlocks[blockIdx]) {
+          htmlParts.push(codeBlocks[blockIdx]);
+        }
+        continue;
+      }
+
+      // Heading: ### Heading or ## Heading or # Heading
+      const headingMatch = trimmedLine.match(/^(#{1,4})\s+(.+)$/);
+      if (headingMatch) {
+        if (inList) {
+          htmlParts.push('</ul>');
+          inList = false;
+        }
+        const level = headingMatch[1].length;
+        const headingText = formatAiInline(headingMatch[2]);
+        const cleanLevel = Math.min(Math.max(level, 2), 4);
+        htmlParts.push(`<h${cleanLevel} class="msg-section-heading heading-l${cleanLevel}"><span class="msg-heading-icon">⚡</span> ${headingText}</h${cleanLevel}>`);
+        continue;
+      }
+
+      // Bullet point: starts with *, -, •, or numbered e.g. 1.
+      const isBullet = /^(\*|-|•)\s+(.+)$/.test(trimmedLine);
+      const isNumbered = /^(\d+)\.\s+(.+)$/.test(trimmedLine);
+
+      if (isBullet || isNumbered) {
+        if (!inList) {
+          htmlParts.push('<ul class="msg-styled-list">');
+          inList = true;
+        }
+
+        let content = isBullet ? trimmedLine.replace(/^(\*|-|•)\s+/, '') : trimmedLine.replace(/^(\d+)\.\s+/, '');
+        let isIndented = line.search(/\S/) >= 2;
+
+        let isKeyword = /^\*\*(?:Decision|Trade-offs?|Reason|Why|Cost|Cost Savings|Availability|Compliance|Risk Mitigation|Mitigation|Sizing|Impact|Pros|Cons|Note|Security|Performance):?\*\*:?/i.test(content);
+        let isService = !isKeyword && !isIndented && /^\*\*[^*]+?\*\*.*?\$\d+/i.test(content);
+        let isSubItem = isKeyword || isIndented || /^(Decision|Trade-offs?|Reason|Why|Cost|Availability|Compliance|Mitigation):/i.test(content);
+
+        let itemClasses = ['msg-list-item'];
+        if (isSubItem) itemClasses.push('is-subitem');
+        if (isService) itemClasses.push('is-service');
+
+        let formattedContent = formatAiInline(content);
+
+        htmlParts.push(`<li class="${itemClasses.join(' ')}"><span class="item-bullet"></span><div class="item-content">${formattedContent}</div></li>`);
+        continue;
+      }
+
+      // Normal paragraph text
+      if (inList) {
+        htmlParts.push('</ul>');
+        inList = false;
+      }
+      htmlParts.push(`<p class="msg-paragraph">${formatAiInline(trimmedLine)}</p>`);
+    }
+
+    if (inList) {
+      htmlParts.push('</ul>');
+    }
+
+    return htmlParts.join('\n');
+  }
+
   function renderChatHistory(messages) {
     chatFeed.innerHTML = '';
     messages.forEach(msg => appendChatMessage(msg, false));
@@ -523,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bulletPoints && bulletPoints.length > 0) {
       bulletsHtml = `
         <ul class="msg-bullets">
-          ${bulletPoints.map(b => `<li>${b}</li>`).join('')}
+          ${bulletPoints.map(b => `<li>${formatAiInline(b)}</li>`).join('')}
         </ul>
       `;
     }
@@ -553,6 +723,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    const bodyContentHtml = isUser
+      ? `<div class="msg-user-text">${escapeHtml(displayText).replace(/\n/g, '<br>')}</div>`
+      : formatAiMessage(displayText);
+
     msgEl.innerHTML = `
       <div class="msg-header">
         <div class="msg-avatar ${isUser ? 'user' : 'ai'}">${isUser ? 'U' : 'AI'}</div>
@@ -561,7 +735,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="msg-time">${msg.timestamp || 'Now'}</span>
       </div>
       <div class="msg-body">
-        ${displayText}
+        ${bodyContentHtml}
         ${bulletsHtml}
         ${actionBtnHtml}
       </div>
